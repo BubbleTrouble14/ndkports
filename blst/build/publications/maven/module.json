@@ -1,0 +1,35 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.bubble.blst",
+    "module": "blst",
+    "version": "0.3.11-beta-1",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.5"
+    }
+  },
+  "variants": [
+    {
+      "name": "exportedAars",
+      "attributes": {
+        "artifactType": "aar"
+      },
+      "files": [
+        {
+          "name": "blst-0.3.11-beta-1.aar",
+          "url": "blst-0.3.11-beta-1.aar",
+          "size": 451982,
+          "sha512": "b71aea6b99083dcb929ad28a149a1104f043fc365a33bdd377aa1ea2d13983dbac61276b4103ab98a8f49733a0b93f93c32536ea819ace074edb1b2772c647b2",
+          "sha256": "d967148350938f9397a02a0758e5f28b87cee14b94879cefca18b4e440ca4fa3",
+          "sha1": "660465edad195ffd87f041da20ac9aabf9d7db62",
+          "md5": "305251c80ec470adb1560d0216695b78"
+        }
+      ]
+    }
+  ]
+}
