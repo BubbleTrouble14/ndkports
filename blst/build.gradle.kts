@@ -17,7 +17,6 @@ fun blstVersionToCMakeVersion(blstVersion: String): CMakeCompatibleVersion {
     return CMakeCompatibleVersion(major, minor, patch, 0)
 }
 
-
 val portVersion = "0.3.11"
 val prefabVersion = blstVersionToCMakeVersion(portVersion)
 
@@ -72,16 +71,6 @@ val buildTask = tasks.register<AdHocPortTask>("buildPort") {
         run {
             args(*(arrayOf(cc, "-c", sourceDirectory.resolve("build/assembly.S").absolutePath) + commonCFlags))
         }
-
-        // println(buildDirectory.resolve("libblst.so").absolutePath + "${buildDirectory.absolutePath}/assembly.o" + "${buildDirectory.absolutePath}/server.o")
-        // println(cc)
-
-        val runCommand = (arrayOf(cc, "-shared", "-o", buildDirectory.resolve("libblst.so").absolutePath) +
-                    arrayOf("${buildDirectory.absolutePath}/assembly.o", "${buildDirectory.absolutePath}/server.o") +
-                    commonCFlags + linkerFlags)
-
-        // Print the constructed command
-        println(runCommand.joinToString(" "))
 
         // Create the library archive
         run {
