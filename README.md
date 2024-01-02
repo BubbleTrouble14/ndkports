@@ -11,7 +11,13 @@ To build a port using `ndkports`, follow these steps:
 
 2. **Run the Build Script**:
    Execute the build script by running the following command in your terminal:
-
    ```bash
    ./scripts/build_release.sh
    ```
+
+3. **Control Library Inclusion**:
+   Modify the `settings.gradle.kts` file to control which libraries are built. This file enumerates all available ports. Include a library in your build by adding a line like this:
+   ```kotlin
+   include("blst")
+   ```
+   Exclude a library by not listing it or commenting it out.
