@@ -14,4 +14,6 @@ pluginManagement {
 // include("googletest")
 // include("jsoncpp")
 // include("openssl")
-include("blst")
+// include("blst")
+// include("gmp")
+include("utf8proc")

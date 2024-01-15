@@ -98,16 +98,33 @@ trap '[ $? -ne 0 ] && rm -f libblst.a; rm -f *.o ${TMPDIR}/*.blst.$$' 0
 (set -x; ${CC} ${CFLAGS} -c ${TOP}/build/assembly.S)
 (set -x; ${AR} rc libblst.a *.o)
 
+# if [ $shared ]; then
+#     case $flavour in
+#         macosx) (set -x; ${CC} -dynamiclib -o libblst$dll.dylib \
+#                                -all_load libblst.a ${CFLAGS}); exit 0;;
+#         mingw*) sharedlib="blst.dll ${TOP}/build/win64/blst.def"
+#                 CFLAGS="${CFLAGS} --entry=DllMain ${TOP}/build/win64/dll.c"
+#                 CFLAGS="${CFLAGS} -nostdlib -lgcc";;
+#         *)      sharedlib=libblst$dll.so;;
+#     esac
+#     (set -x; ${CC} -shared -o $sharedlib \
+#                    -Wl,--whole-archive,libblst.a,--no-whole-archive ${CFLAGS} \
+#                    -Wl,-Bsymbolic)
+# fi
 if [ $shared ]; then
     case $flavour in
         macosx) (set -x; ${CC} -dynamiclib -o libblst$dll.dylib \
-                               -all_load libblst.a ${CFLAGS}); exit 0;;
+                               -all_load libblst.a ${CFLAGS} \
+                               -Wl,-install_name,libblst.dylib); exit 0;;  # macOS equivalent of SONAME
         mingw*) sharedlib="blst.dll ${TOP}/build/win64/blst.def"
                 CFLAGS="${CFLAGS} --entry=DllMain ${TOP}/build/win64/dll.c"
-                CFLAGS="${CFLAGS} -nostdlib -lgcc";;
-        *)      sharedlib=libblst$dll.so;;
+                CFLAGS="${CFLAGS} -nostdlib -lgcc"
+                (set -x; ${CC} -shared -o $sharedlib \
+                -Wl,--whole-archive,libblst.a,--no-whole-archive ${CFLAGS} \
+                -Wl,-Bsymbolic -Wl,--out-implib,libblst.dll.a);;  # Windows equivalent of SONAME
+        *)      sharedlib=libblst$dll.so
+                (set -x; ${CC} -shared -o $sharedlib \
+                -Wl,--whole-archive,libblst.a,--no-whole-archive ${CFLAGS} \
+                -Wl,-Bsymbolic -Wl,-soname,libblst.so);;  # Linux and others
     esac
-    (set -x; ${CC} -shared -o $sharedlib \
-                   -Wl,--whole-archive,libblst.a,--no-whole-archive ${CFLAGS} \
-                   -Wl,-Bsymbolic)
 fi

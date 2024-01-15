@@ -6,8 +6,15 @@
 /googletest/build/
 /jsoncpp/build/
 /openssl/build/
+/gmp/build/
+/sodium/build/
+/blst/build/
+/utf8proc/build/
 ?/
 .vscode/
+
+/ios/*
+!/ios/build-ios.sh
 
 # Ignore Gradle GUI config
 gradle-app.setting

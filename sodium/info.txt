@@ -1,0 +1,1 @@
+run ./dist-build/android-aar.sh

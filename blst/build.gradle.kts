@@ -20,7 +20,7 @@ fun blstVersionToCMakeVersion(blstVersion: String): CMakeCompatibleVersion {
 val portVersion = "0.3.11"
 val prefabVersion = blstVersionToCMakeVersion(portVersion)
 
-group = "com.bubble.blst"
+group = "com.android.ndk.thirdparty"
 version = "$portVersion${rootProject.extra.get("snapshotSuffix")}"
 
 plugins {
@@ -38,45 +38,16 @@ ndkPorts {
 val buildTask = tasks.register<AdHocPortTask>("buildPort") {
 
     builder {
-        // Define the commands for the toolchain
-        val cc = toolchain.clang.absolutePath
-        println("......${installDirectory.absolutePath}......")
-        // Compile the source files
-
-        val commonCFlags = arrayOf(
-            "-O2", // Optimization flag
-            "-fno-builtin", // Disable intrinsic functions
-            "-fPIC", // Position-independent code
-            "-Wall", // Enable all warnings
-            "-Wextra", // Enable extra warnings
-            "-Werror", // Treat warnings as errors
-            "-frtti", // Enable RTTI
-            "-fexceptions", // Enable exceptions
-            "-fstack-protector-all", // Stack protection
-            "-DON_ANDROID", // Define ON_ANDROID
-            "-DANDROID", // Define ANDROID
-        )
-
-        val linkerFlags = arrayOf(
-            "-lc++_shared" // Link against the shared C++ standard library
-        )
-
-        // Compile the source files
-        run {
-            args(*(arrayOf(cc, "-c", sourceDirectory.resolve("src/server.c").absolutePath) + commonCFlags))
-        }
-
-        // println(sourceDirectory.resolve("build/assembly.S").absolutePath)
+        println("......${sourceDirectory.resolve("build.sh").absolutePath}......")
 
         run {
-            args(*(arrayOf(cc, "-c", sourceDirectory.resolve("build/assembly.S").absolutePath) + commonCFlags))
-        }
+            args(
+              sourceDirectory.resolve("build.sh").absolutePath,
+              "-shared",
+            )
 
-        // Create the library archive
-        run {
-            args(*(arrayOf(cc, "-shared", "-o", buildDirectory.resolve("libblst.so").absolutePath) +
-                    arrayOf("${buildDirectory.absolutePath}/assembly.o", "${buildDirectory.absolutePath}/server.o") +
-                    commonCFlags + linkerFlags))
+            env("CC", toolchain.clang.absolutePath)
+            env("AR", toolchain.ar.absolutePath)
         }
 
         run {

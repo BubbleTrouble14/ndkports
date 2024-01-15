@@ -4,7 +4,8 @@ RUN apt-get update && apt-get install -y \
     cmake \
     curl \
     ninja-build \
-    python3-pip
+    python3-pip \
+    m4
 # RUN pip3 install meson
 RUN curl -L -o platform-tools.zip \
     https://dl.google.com/android/repository/platform-tools-latest-linux.zip
