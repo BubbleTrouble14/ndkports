@@ -7,6 +7,7 @@
 /jsoncpp/build/
 /openssl/build/
 /gmp/build/
+/gmp/gmp/
 /sodium/build/
 /blst/build/
 /utf8proc/build/
