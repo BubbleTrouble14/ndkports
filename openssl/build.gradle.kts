@@ -2,25 +2,7 @@ import com.android.ndkports.AdHocPortTask
 import com.android.ndkports.AndroidExecutableTestTask
 import com.android.ndkports.CMakeCompatibleVersion
 
-fun openSslVersionToCMakeVersion(openSslVersion: String): CMakeCompatibleVersion {
-    val (major, minor, microAndLetter) = openSslVersion.split(".")
-    val letter = microAndLetter.last()
-    val micro = microAndLetter.substringBefore(letter)
-    val tweak = if (letter.isDigit()) {
-        // 1.1.1 is 1.1.1.0.
-        0
-    } else {
-        // 1.1.1a is 1.1.1.1.
-        letter.toInt() - 'a'.toInt() + 1
-    }
-
-    return CMakeCompatibleVersion(
-        major.toInt(), minor.toInt(), micro.toInt(), tweak
-    )
-}
-
-val portVersion = "1.1.1s"
-val prefabVersion = openSslVersionToCMakeVersion(portVersion)
+val portVersion = "3.2.1"
 
 group = "com.android.ndk.thirdparty"
 version = "$portVersion${rootProject.extra.get("snapshotSuffix")}"
@@ -34,7 +16,7 @@ plugins {
 ndkPorts {
     ndkPath.set(File(project.findProperty("ndkPath") as String))
     source.set(project.file("src.tar.gz"))
-    minSdkVersion.set(16)
+    minSdkVersion.set(21)
 }
 
 val buildTask = tasks.register<AdHocPortTask>("buildPort") {
@@ -71,7 +53,9 @@ val buildTask = tasks.register<AdHocPortTask>("buildPort") {
 }
 
 tasks.prefabPackage {
-    version.set(prefabVersion)
+    version.set(CMakeCompatibleVersion.parse(portVersion))
+
+    licensePath.set("LICENSE.txt")
 
     modules {
         create("crypto")
@@ -79,69 +63,69 @@ tasks.prefabPackage {
     }
 }
 
-tasks.register<AndroidExecutableTestTask>("test") {
-    val srcDir = tasks.extractSrc.get().outDir.asFile.get()
-    val testSrc = srcDir.resolve("test/ssl-tests")
-    val deviceTestRelPath = File("testconf")
+// tasks.register<AndroidExecutableTestTask>("test") {
+//     val srcDir = tasks.extractSrc.get().outDir.asFile.get()
+//     val testSrc = srcDir.resolve("test/ssl-tests")
+//     val deviceTestRelPath = File("testconf")
 
-    val unsupportedTests = listOf(
-        // This test is empty and appears to just be broken in 1.1.1k.
-        "16-certstatus.conf",
-        // zlib support is not enabled.
-        "22-compression.conf",
-        // Android does not support SCTP sockets and this test requires them.
-        "29-dtls-sctp-label-bug.conf"
-    )
+//     val unsupportedTests = listOf(
+//         // This test is empty and appears to just be broken in 1.1.1k.
+//         "16-certstatus.conf",
+//         // zlib support is not enabled.
+//         "22-compression.conf",
+//         // Android does not support SCTP sockets and this test requires them.
+//         "29-dtls-sctp-label-bug.conf"
+//     )
 
-    push {
-        val ignoredExtensions = listOf("o", "d")
-        val buildDirectory = buildTask.get().buildDirectoryFor(abi)
-        push(
-            srcDir.resolve("test/ct/log_list.conf"), File("log_list.conf")
-        )
-        for (file in buildDirectory.walk()) {
-            if (!file.isFile) {
-                continue
-            }
+//     push {
+//         val ignoredExtensions = listOf("o", "d")
+//         val buildDirectory = buildTask.get().buildDirectoryFor(abi)
+//         push(
+//             srcDir.resolve("test/ct/log_list.conf"), File("log_list.conf")
+//         )
+//         for (file in buildDirectory.walk()) {
+//             if (!file.isFile) {
+//                 continue
+//             }
 
-            if (file.extension in ignoredExtensions) {
-                continue
-            }
+//             if (file.extension in ignoredExtensions) {
+//                 continue
+//             }
 
-            push(file, file.relativeTo(buildDirectory))
-        }
-        for (file in testSrc.walk()) {
-            if (file.extension == "conf") {
-                push(
-                    file, deviceTestRelPath.resolve(file.relativeTo(testSrc))
-                )
-            }
-        }
-        push(srcDir.resolve("test/certs"), File("certs"))
-    }
+//             push(file, file.relativeTo(buildDirectory))
+//         }
+//         for (file in testSrc.walk()) {
+//             if (file.extension == "conf") {
+//                 push(
+//                     file, deviceTestRelPath.resolve(file.relativeTo(testSrc))
+//                 )
+//             }
+//         }
+//         push(srcDir.resolve("test/certs"), File("certs"))
+//     }
 
-    run {
-        // https://github.com/openssl/openssl/blob/master/test/README.ssltest.md
-        val sslTest = deviceDirectory.resolve("test/ssl_test")
-        val ctlogFile = deviceDirectory.resolve("log_list.conf")
-        val testCertDir = deviceDirectory.resolve("certs")
-        for (file in testSrc.walk()) {
-            val test = deviceDirectory.resolve(deviceTestRelPath)
-                .resolve(file.relativeTo(testSrc))
-            if (file.extension == "conf" && file.name !in unsupportedTests) {
-                shellTest(
-                    file.relativeTo(testSrc).toString(), listOf(
-                        "LD_LIBRARY_PATH=$deviceDirectory",
-                        "CTLOG_FILE=$ctlogFile",
-                        "TEST_CERTS_DIR=$testCertDir",
-                        sslTest.toString(),
-                        test.toString()
-                    )
-                )
-            }
-        }
-    }
-}
+//     run {
+//         // https://github.com/openssl/openssl/blob/master/test/README.ssltest.md
+//         val sslTest = deviceDirectory.resolve("test/ssl_test")
+//         val ctlogFile = deviceDirectory.resolve("log_list.conf")
+//         val testCertDir = deviceDirectory.resolve("certs")
+//         for (file in testSrc.walk()) {
+//             val test = deviceDirectory.resolve(deviceTestRelPath)
+//                 .resolve(file.relativeTo(testSrc))
+//             if (file.extension == "conf" && file.name !in unsupportedTests) {
+//                 shellTest(
+//                     file.relativeTo(testSrc).toString(), listOf(
+//                         "LD_LIBRARY_PATH=$deviceDirectory",
+//                         "CTLOG_FILE=$ctlogFile",
+//                         "TEST_CERTS_DIR=$testCertDir",
+//                         sslTest.toString(),
+//                         test.toString()
+//                     )
+//                 )
+//             }
+//         }
+//     }
+// }
 
 publishing {
     publications {

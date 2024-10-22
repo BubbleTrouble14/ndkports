@@ -1,10 +1,10 @@
-import com.android.ndkports.AutoconfPortTask
+import com.android.ndkports.CMakePortTask
 import com.android.ndkports.CMakeCompatibleVersion
 import com.android.ndkports.PrefabSysrootPlugin
 
-val portVersion = "6.3.0"
+val portVersion = "1.6.44"
 
-group = "com.android.ndk.thirdparty"
+group = "io.github.cryptorg"
 version = "$portVersion${rootProject.extra.get("snapshotSuffix")}"
 
 plugins {
@@ -13,9 +13,13 @@ plugins {
     distribution
 }
 
+dependencies {
+    implementation(project(":zlib"))
+}
+
 ndkPorts {
     ndkPath.set(File(project.findProperty("ndkPath") as String))
-    source.set(project.file("src.tar.xz"))
+    source.set(project.file("libpng-$portVersion.tar.xz"))
     minSdkVersion.set(19)
 }
 
@@ -23,23 +27,31 @@ tasks.prefab {
     generator.set(PrefabSysrootPlugin::class.java)
 }
 
-tasks.register<AutoconfPortTask>("buildPort") {
-    autoconf {
-        args(
-            "--disable-static",
-            "--enable-shared",
-            "--enable-cxx",
-        )
+val buildTask = tasks.register<CMakePortTask>("buildPort") {
+    cmake {
+        arg("-DPNG_SHARED=ON")
+        arg("-DPNG_STATIC=OFF")
+        arg("-DPNG_TESTS=OFF")
+        arg("-DPNG_EXECUTABLES=OFF")
+        arg("-DZLIB_ROOT=$sysroot")
     }
 }
 
 tasks.prefabPackage {
     version.set(CMakeCompatibleVersion.parse(portVersion))
 
-    licensePath.set("COPYING")
+    licensePath.set("LICENSE")
+
+    @Suppress("UnstableApiUsage") dependencies.set(
+        mapOf(
+            "zlib" to "1.3.1"  // Make sure this matches your zlib version
+        )
+    )
 
     modules {
-        create("gmp")
+        create("png16") {
+            dependencies.set(listOf("//zlib:z"))
+        }
     }
 }
 
@@ -48,15 +60,15 @@ publishing {
         create<MavenPublication>("maven") {
             from(components["prefab"])
             pom {
-                name.set("gmp")
-                description.set("The ndkports AAR for gmp.")
+                name.set("libpng16")
+                description.set("The ndkports AAR for libpng16.")
                 url.set(
-                    "https://android.googlesource.com/platform/tools/ndkports"
+                    "https://github.com/BubbleTrouble14/ndkports"
                 )
                 licenses {
                     license {
-                        name.set("The gmp License")
-                        url.set("https://gmp.haxx.se/docs/copyright.html")
+                        name.set("libpng License")
+                        url.set("http://www.libpng.org/pub/png/src/libpng-LICENSE.txt")
                         distribution.set("repo")
                     }
                 }
@@ -66,8 +78,8 @@ publishing {
                     }
                 }
                 scm {
-                    url.set("https://android.googlesource.com/platform/tools/ndkports")
-                    connection.set("scm:git:https://android.googlesource.com/platform/tools/ndkports")
+                    url.set("https://github.com/BubbleTrouble14/ndkports")
+                    connection.set("scm:git:https://github.com/BubbleTrouble14/ndkports")
                 }
             }
         }
@@ -79,11 +91,6 @@ publishing {
         }
     }
 }
-
-signing {
-    sign(publishing.publications["maven"])
-}
-
 
 distributions {
     main {

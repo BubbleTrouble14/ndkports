@@ -16,4 +16,6 @@ pluginManagement {
 // include("openssl")
 // include("blst")
 // include("gmp")
-include("utf8proc")
+// include("utf8proc")
+include("zlib")
+include("libpng")

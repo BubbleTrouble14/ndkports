@@ -11,6 +11,7 @@ To build a port using `ndkports`, follow these steps:
 
 2. **Run the Build Script**:
    Execute the build script by running the following command in your terminal:
+
    ```bash
    ./scripts/build_release.sh
    ```
@@ -21,3 +22,7 @@ To build a port using `ndkports`, follow these steps:
    include("blst")
    ```
    Exclude a library by not listing it or commenting it out.
+
+//Run locally
+
+./gradlew -PndkPath="/Users/ronaldgoedeke/Library/Android/sdk/ndk/26.1.10909125" -Prelease release

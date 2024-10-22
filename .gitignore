@@ -2,15 +2,6 @@
 /.gradle_home/
 /build/
 /buildSrc/build/
-/curl/build/
-/googletest/build/
-/jsoncpp/build/
-/openssl/build/
-/gmp/build/
-/gmp/gmp/
-/sodium/build/
-/blst/build/
-/utf8proc/build/
 ?/
 .vscode/
 
@@ -97,3 +88,36 @@ fabric.properties
 
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
+
+
+/zlib/*
+!/zlib/build.gradle.kts
+
+/utf8proc/*
+!/utf8proc/build.gradle.kts
+
+/gmp/*
+!/gmp/build.gradle.kts
+
+/blst/*
+!/blst/build.gradle.kts
+
+/libpng/*
+!/libpng/build.gradle.kts
+
+/jsoncpp/*
+!/jsoncpp/build.gradle.kts
+
+/googletest/*
+!/googletest/build.gradle.kts
+
+/sodium/*
+
+/gmp/*
+!/gmp/build.gradle.kts
+
+/curl/*
+!/curl/build.gradle.kts
+
+/openssl/*
+!/openssl/build.gradle.kts

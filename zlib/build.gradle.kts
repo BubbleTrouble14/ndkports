@@ -1,10 +1,10 @@
-import com.android.ndkports.AutoconfPortTask
+import com.android.ndkports.CMakePortTask
 import com.android.ndkports.CMakeCompatibleVersion
 import com.android.ndkports.PrefabSysrootPlugin
 
-val portVersion = "6.3.0"
+val portVersion = "1.3.1"
 
-group = "com.android.ndk.thirdparty"
+group = "io.github.cryptorg"
 version = "$portVersion${rootProject.extra.get("snapshotSuffix")}"
 
 plugins {
@@ -15,7 +15,7 @@ plugins {
 
 ndkPorts {
     ndkPath.set(File(project.findProperty("ndkPath") as String))
-    source.set(project.file("src.tar.xz"))
+    source.set(project.file("zlib-$portVersion.tar.gz"))
     minSdkVersion.set(19)
 }
 
@@ -23,23 +23,20 @@ tasks.prefab {
     generator.set(PrefabSysrootPlugin::class.java)
 }
 
-tasks.register<AutoconfPortTask>("buildPort") {
-    autoconf {
-        args(
-            "--disable-static",
-            "--enable-shared",
-            "--enable-cxx",
-        )
+val buildTask = tasks.register<CMakePortTask>("buildPort") {
+    cmake {
+        arg("-DBUILD_SHARED_LIBS=ON")
+        // Add any zlib-specific CMake arguments here if needed
     }
 }
 
 tasks.prefabPackage {
     version.set(CMakeCompatibleVersion.parse(portVersion))
 
-    licensePath.set("COPYING")
+    licensePath.set("LICENSE")
 
     modules {
-        create("gmp")
+        create("z")
     }
 }
 
@@ -48,15 +45,15 @@ publishing {
         create<MavenPublication>("maven") {
             from(components["prefab"])
             pom {
-                name.set("gmp")
-                description.set("The ndkports AAR for gmp.")
+                name.set("zlib")
+                description.set("The ndkports AAR for zlib.")
                 url.set(
-                    "https://android.googlesource.com/platform/tools/ndkports"
+                    "https://github.com/BubbleTrouble14/ndkports"
                 )
                 licenses {
                     license {
-                        name.set("The gmp License")
-                        url.set("https://gmp.haxx.se/docs/copyright.html")
+                        name.set("zlib License")
+                        url.set("https://zlib.net/zlib_license.html")
                         distribution.set("repo")
                     }
                 }
@@ -66,8 +63,8 @@ publishing {
                     }
                 }
                 scm {
-                    url.set("https://android.googlesource.com/platform/tools/ndkports")
-                    connection.set("scm:git:https://android.googlesource.com/platform/tools/ndkports")
+                    url.set("https://github.com/BubbleTrouble14/ndkports")
+                    connection.set("scm:git:https://github.com/BubbleTrouble14/ndkports")
                 }
             }
         }
@@ -79,11 +76,6 @@ publishing {
         }
     }
 }
-
-signing {
-    sign(publishing.publications["maven"])
-}
-
 
 distributions {
     main {
